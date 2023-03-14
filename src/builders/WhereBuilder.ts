@@ -68,8 +68,6 @@ export class WhereBuilder<T> extends Builder<T> {
       return;
     }
 
-    // console.log({ fieldFilters });
-
     for (const fieldFilter in fieldFilters) {
       if (fieldFilter === "OR") {
         qb.andWhere(
