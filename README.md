@@ -222,8 +222,10 @@ const users = filter<User>(
     relations: ["profiles"],
     order: ["firstName:asc", "lastName:desc", "createdAt"],
     select: ["id", "firstName", "profiles.name"],
-    s: "john",
-    searchColumns: ["firstName"],
+    search: {
+      term: "john",
+      fields: ["firstName"],
+    },
   },
   {
     filterableColumns: ["firstName", "lastName", "isAdmin"],
