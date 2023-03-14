@@ -50,17 +50,17 @@ export class WhereBuilder<T> extends Builder<T> {
     fieldFilters: any,
     { negate, filterWith }: { negate?: boolean; filterWith?: "OR" | "AND" } = { negate: false, filterWith: null }
   ) {
-    if (this.configuration.customFieldFilter?.[fieldName]) {
+    if (this.configuration.customFilter?.[fieldName]) {
       if (filterWith === "OR") {
         qb.orWhere(
           new Brackets((qbInner) => {
-            this.configuration.customFieldFilter[fieldName](qbInner, fieldFilters, this.queryBuilder.expressionMap.mainAlias.name);
+            this.configuration.customFilter[fieldName](qbInner, fieldFilters, this.queryBuilder.expressionMap.mainAlias.name);
           })
         );
       } else {
         qb.andWhere(
           new Brackets((qbInner) => {
-            this.configuration.customFieldFilter[fieldName](qbInner, fieldFilters, this.queryBuilder.expressionMap.mainAlias.name);
+            this.configuration.customFilter[fieldName](qbInner, fieldFilters, this.queryBuilder.expressionMap.mainAlias.name);
           })
         );
       }

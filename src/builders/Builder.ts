@@ -34,7 +34,7 @@ export class Builder<T> implements IBuilder<T> {
       ignoreException: false,
       paginate: false,
       modify: null,
-      customFieldFilter: null,
+      customFilter: null,
     };
     this.queryBuilderMapper = {
       select: [],

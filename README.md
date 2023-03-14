@@ -20,8 +20,9 @@ The `typeorm-filter` provides
   - [starts_with](#starts_with)
   - [ends_with](#ends_with)
 - [Logical operators](#logical-operators)
-  - [$and](#and)
-  - [$or](#or)
+  - [AND](#and)
+  - [OR](#or)
+- [Custom filters](#custom-filters)
 - [Advanced Usage](#advanced-usage)
   - [Multiple filters](#multiple-filters)
   - [Nested logical operators](#nested-logical-operators)
@@ -52,7 +53,7 @@ import { filter } from "src/helpers/typeorm-filter";
 
 const userRepository = getRepository(User);
 const users = filter(userRepository, {
-  filter: [
+  filters: [
     {
       email: {
         starts_with: "admin",
@@ -79,17 +80,19 @@ You can do as many combinations as you like.
 filter(repository, {
 	page: 1,
 	limit: undefined,
-	filter: [],
+	filters: [],
 	relations: [],
 	order: [],
 	select: [],
-	s: undefined,
-	searchColumns: []
+	search: {
+		term: undefined,
+		fields: []
+	},
 }, {
 	filterableColumns: [],
 	sortableColumns: [],
 	searchableColumns: [],
-	customFieldFilter: {},
+	customFilter: {},
 	modify: (queryBuilder, tableAlias?:  string) =>  void,
 	paginate: true,
 	ignoreException: true
@@ -104,7 +107,7 @@ The current page
 
 The limit per page
 
-##### query.filter
+##### query.filters
 
 More details [here](#conditional-operators)
 
@@ -121,13 +124,13 @@ For example: `['firstName: desc', 'lastName:asc', 'createdAt']`
 
 Array containing all the fields that will be added to the response
 
-##### query.s
+##### query.search.term
 
-String to filter the `query.SearchColumns`
+String to filter the `query.search.fields`
 
-##### query.searchColumns
+##### query.search.fields
 
-Array containing all the columns that will be filtered with the `query.s`
+Array containing all the columns that will be filtered with the `query.search.term`
 
 ##### configuration.filterableColumns
 
@@ -139,11 +142,11 @@ Array containing all the columns that can be sorted. When empty, all the columns
 
 ##### configuration.searchableColumns
 
-Array containing all the columns that can be searched with the [`query.s`](#query.s). When empty, all the columns can be sorted.
+Array containing all the columns that can be searched with the [`query.search.term`](#query.search.term). When empty, all the columns can be sorted.
 
-##### configuration.customFieldFilter
+##### configuration.customFilter
 
-Object containing all custom filters. When this field is found inside the `query.filter` the custom filter specified here will be applied.
+Object containing all custom filters. When this field is found inside the `query.filter` the custom filter specified here will be applied. See more [here](#custom-filters).
 
 ##### configuration.modify
 
@@ -215,7 +218,7 @@ const users = filter<User>(
   {
     page: 1,
     limit: 10,
-    filter: [{ firstName: { contains: "jo", not: { eq: "John" } } }, { lastName: { not: { eq: "Doe" } } }],
+    filters: [{ firstName: { contains: "jo", not: { eq: "John" } } }, { lastName: { not: { eq: "Doe" } } }],
     relations: ["profiles"],
     order: ["firstName:asc", "lastName:desc", "createdAt"],
     select: ["id", "firstName", "profiles.name"],
@@ -226,7 +229,7 @@ const users = filter<User>(
     filterableColumns: ["firstName", "lastName", "isAdmin"],
     sortableColumns: ["firstName", "lastName", "createdAt"],
     searchableColumns: ["firstName", "lastName"],
-    customFieldFilter: {
+    customFilter: {
       hasProfile: (queryBuilder, filterValue, mainTableAlias) => {
         queryBuilder.where(`${mainTableAlias}.profiles IS NOT NULL`);
       },
@@ -254,7 +257,7 @@ If you use both filters, they will be joined with logical operator `AND`. For ex
 filter(userRepository, {
   s: "john",
   searchColumns: ["firstName", "lastName"],
-  filter: [{ email: { eq: "admin@gmail.com" } }, { createdAt: { gte: "2022-08-01" } }],
+  filters: [{ email: { eq: "admin@gmail.com" } }, { createdAt: { gte: "2022-08-01" } }],
 });
 ```
 
@@ -512,10 +515,10 @@ WHERE email ILIKE '%@gmail.com'
 
 ## Logical operators
 
-- [$or](#or)
-- [$and](#or)
+- [OR](#or)
+- [AND](#or)
 
-### $or
+### OR
 
 Example:
 
@@ -523,7 +526,7 @@ Example:
 filter(userRepository, {
   filters: [
     {
-      $or: [{ email: { eq: "admin@gmail.com" } }, { is_admin: { is_true: true } }],
+      OR: [{ email: { eq: "admin@gmail.com" } }, { is_admin: { is_true: true } }],
     },
   ],
 });
@@ -537,14 +540,14 @@ WHERE (email = 'admin@gmail.com') OR (is_admin IS TRUE)
 
 #### Single field
 
-When inside a field, you can use `$or` as an object to apply multiple conditions to the same field.
+When inside a field, you can use `OR` as an object to apply multiple conditions to the same field.
 
 ```typescript
 filter(userRepository, {
   filters: [
     {
       email: {
-        $or: {
+        OR: {
           starts_with: "admin",
           ends_with: "@gmail.com",
         },
@@ -560,7 +563,7 @@ That will be mapped to the following SQL condition:
 WHERE (email ILIKE 'admin%' OR email ILIKE '%@gmail.com')
 ```
 
-### $and
+### AND
 
 Example:
 
@@ -568,7 +571,7 @@ Example:
 filter(userRepository, {
   filters: [
     {
-      $and: [{ email: { eq: "admin@gmail.com" } }, { created_at: { gte: "2022-08-01" } }],
+      AND: [{ email: { eq: "admin@gmail.com" } }, { created_at: { gte: "2022-08-01" } }],
     },
   ],
 });
@@ -589,7 +592,29 @@ filter(userRepository, {
 });
 ```
 
-The use case for the `$and` is most suitable for a more [advanced usage](#advanced-usage)
+The use case for the `AND` is most suitable for a more [advanced usage](#advanced-usage)
+
+## Custom filters
+
+You can define custom filters that will be applied when found in [`query.filters`](#query.filters).
+
+```typescript
+filter(userRepository, {
+  filters: [
+    { isRegisterComplete: true },
+  ]
+}, {
+	customFilter: {
+      isRegisterComplete(queryBuilder: WhereExpressionBuilder, filterValue?: any, alias?: string) => {
+	    if (filterValue === true) {
+          queryBuilder.where("email IS NOT NULL AND last_name IS NOT NULL");
+        }
+      }
+    }
+})
+```
+
+You can also combine with any other filters.
 
 ## Advances usage
 
@@ -645,13 +670,13 @@ You can nested logical operators as many as you want. Each nested object or arra
 
 ```typescript
 await filter(pessoaRepository, {
-  filter: [
+  filters: [
     {
-      $or: [
+      OR: [
         {
-          $or: [],
+          OR: [],
           field: {
-            $or: { $or: { $or: {} } },
+            OR: { OR: { OR: {} } },
           },
         },
       ],
@@ -666,52 +691,52 @@ Each array and element of the filter creates a new group.
 
 ```typescript
 await filter(pessoaRepository, {
-  filter: [
-    {
-      $and: [
-        {
-          $or: [
-            {
-              first_name: { starts_with: "di" },
-              last_name: { ends_with: "go" },
-              age: { $or: { gte: 18, lte: 60 } },
-            },
-            {
-              $or: [{ profile: { eq: "admin" } }, { profile: { eq: "manager" } }],
-              is_public_access: { is_true: true },
-            },
-            {
-              profile: { eq: "not required" },
-            },
-          ],
-        },
-        {
-          status: { eq: "online" },
-        },
-      ],
-      $or: [
-        {
-          priority: { eq: 1, $or: { lte: 1, gte: 3 } },
-        },
-        {
-          priority: { eq: 2 },
-        },
-      ],
-    },
-    {
-      first_name: {
-        not: {
-          eq: "teste",
-          $or: {
-            starts_with: "p",
-            ends_with: "g",
+    filters: [
+      {
+        AND: [
+          {
+            OR: [
+              {
+                first_name: { starts_with: "di" },
+                last_name: { ends_with: "go" },
+                age: { OR: { gte: 18, lte: 60 } },
+              },
+              {
+                OR: [{ profile: { eq: "admin" } }, { profile: { eq: "manager" } }],
+                is_public_access: { is_true: true },
+              },
+              {
+                profile: { eq: "not required" },
+              },
+            ],
           },
-          $or: {
+          {
+            status: { eq: "online" },
+          },
+        ],
+        OR: [
+          {
+            priority: { eq: 1, OR: { lte: 1, gte: 3 } },
+          },
+          {
+            priority: { eq: 2 },
+          },
+        ],
+      },
+      {
+        first_name: {
+          not: {
+         eq: "teste",
+            OR: {
+              starts_with: "p",
+              ends_with: "g",
+          },
+          OR: {
             starts_with: "di",
             ends_with: "go",
             not: {
               eq: "teste",
-              $or: {
+              OR: {
                 starts_with: "10",
                 ends_with: "11",
               },
@@ -719,9 +744,9 @@ await filter(pessoaRepository, {
           },
         },
       },
-    },
-  ],
-});
+    ],
+  }
+)
 ```
 
 That will be mapped to the following SQL condition:
@@ -798,10 +823,12 @@ Example 1:
 &limit=50
 &select[]=firstName
 &select[]=lastName
+&select[]=profile.name
 &order[]=firstName:desc
-&filter[][0][email][starts_with]=admin
-&filter[][0][email][ends_with]=@gmail.com
-&filter[][1][created_at][lte]=2020-01-01
+&relations[]=profile
+&filters[0][email][starts_with]=admin
+&filters[0][email][ends_with]=@gmail.com
+&filters[1][created_at][lte]=2020-01-01
 ```
 
 Example 2:
@@ -810,9 +837,9 @@ Example 2:
 ?
 page=1
 &limit=50
-&s='john'
-&searchColumns[]=firstName
-&searchColumns[]=lastName
+&search[term]=john
+&search[fields][]=firstName
+&search[fields][]=lastName
 ```
 
 Most frameworks already converts the query string to the expected. But if this is not your case you can use the [`createFilterFromQuery`](#create-filter-from-query) function:
@@ -830,7 +857,16 @@ app.get("/", function (req, res) {
 });
 ```
 
-## Decorators
+!!`createFilterFromQuery` do not exists yet.
+
+## Typed query string [TO DO]
+
+```typescript
+@ParseFilterQuery(): UserFilter
+const filter = createFilterFromQuery({ query: req.query, transformerClass: UserFilter });
+```
+
+## Decorators [TODO]
 
 ### NestJS
 
