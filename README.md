@@ -244,11 +244,11 @@ const users = filter<User>(
   }
 );
 
+console.log(users);
 // {
 //   data: [],
 //   meta: { pagination: { page: 1, perPage: 10, total: 100, pages: 10 } }
 // }
-console.log(users);
 ```
 
 #### query.search and query.filters
