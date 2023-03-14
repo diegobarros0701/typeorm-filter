@@ -126,11 +126,11 @@ Array containing all the fields that will be added to the response
 
 ##### query.search.term
 
-String to filter the `query.search.fields`
+String to filter the [`query.search.fields`](#querysearchfields)
 
 ##### query.search.fields
 
-Array containing all the columns that will be filtered with the `query.search.term`
+Array containing all the columns that will be filtered with the [`query.search.term`](#querysearchterm)
 
 ##### configuration.filterableColumns
 
@@ -142,11 +142,11 @@ Array containing all the columns that can be sorted. When empty, all the columns
 
 ##### configuration.searchableColumns
 
-Array containing all the columns that can be searched with the [`query.search.term`](#query.search.term). When empty, all the columns can be sorted.
+Array containing all the columns that can be searched with the [`query.search.term`](#querysearchterm). When empty, all the columns can be sorted.
 
 ##### configuration.customFilter
 
-Object containing all custom filters. When this field is found inside the `query.filter` the custom filter specified here will be applied. See more [here](#custom-filters).
+Object containing all custom filters. When this field is found inside the [`query.filters`](#queryfilters) the custom filter specified here will be applied. See more [here](#custom-filters).
 
 ##### configuration.modify
 
@@ -249,14 +249,16 @@ const users = filter<User>(
 console.log(users);
 ```
 
-#### query.s and query.filter
+#### query.search and query.filters
 
 If you use both filters, they will be joined with logical operator `AND`. For example:
 
 ```typescript
 filter(userRepository, {
-  s: "john",
-  searchColumns: ["firstName", "lastName"],
+  search: {
+    term: "john",
+    fields: ["firstName", "lastName"],
+  },
   filters: [{ email: { eq: "admin@gmail.com" } }, { createdAt: { gte: "2022-08-01" } }],
 });
 ```
@@ -596,7 +598,7 @@ The use case for the `AND` is most suitable for a more [advanced usage](#advance
 
 ## Custom filters
 
-You can define custom filters that will be applied when found in [`query.filters`](#query.filters).
+You can define custom filters that will be applied when found in [`query.filters`](#queryfilters).
 
 ```typescript
 filter(userRepository, {
