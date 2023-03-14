@@ -8,26 +8,29 @@ export class RelationBuilder<T> extends Builder<T> {
     });
   }
 
-  private addRelation(relationName: string) {
-    const relationPaths = relationName.split(".");
+  private addRelation(relationExpression: string) {
+    const relationPaths = relationExpression.split(".");
     const { relationsAliasMapping, select } = this.queryBuilderMapper;
 
     if (relationPaths.length > 2) return this;
 
-    const relationAlias = relationPaths.at(-1);
+    const relationDefinition = relationExpression.split(":");
 
-    if (relationsAliasMapping[relationAlias]) {
-      if (!select.includes(relationsAliasMapping[relationAlias])) {
-        this.queryBuilder.addSelect(relationsAliasMapping[relationAlias]);
-      }
+    const relationName = relationDefinition[0];
+    const relationAlias = relationDefinition.length == 1 ? relationPaths.at(-1) : relationDefinition.at(-1);
 
-      return this;
-    }
+    // if (relationsAliasMapping[relationAlias]) {
+    //   if (!select.includes(relationsAliasMapping[relationAlias])) {
+    //     this.queryBuilder.addSelect(relationsAliasMapping[relationAlias]);
+    //   }
+
+    //   return this;
+    // }
 
     if (relationPaths.length > 1) {
-      this.queryBuilder.leftJoinAndSelect(relationName, relationAlias);
+      this.queryBuilder.leftJoin(relationName, relationAlias);
     } else {
-      this.queryBuilder.leftJoinAndSelect(`${this.queryBuilder.alias}.${relationName}`, relationAlias);
+      this.queryBuilder.leftJoin(`${this.queryBuilder.expressionMap.mainAlias.name}.${relationName}`, relationAlias);
     }
 
     return this;

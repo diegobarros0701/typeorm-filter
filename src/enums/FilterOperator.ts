@@ -1,5 +1,5 @@
 export enum FilterOperator {
-  EQ = "eq",
+  EQUALS = "equals",
   CONTAINS = "contains",
   IN = "in",
   GT = "gt",
@@ -9,7 +9,6 @@ export enum FilterOperator {
   BETWEEN = "between",
   NOT = "not",
   IS_NULL = "is_null",
-  // IS_TRUE = "is_true",
   STARTS_WITH = "starts_with",
   ENDS_WITH = "ends_with",
 }

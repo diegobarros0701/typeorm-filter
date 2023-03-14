@@ -666,45 +666,45 @@ Each array and element of the filter creates a new group.
 
 ```typescript
 await filter(pessoaRepository, {
-    filter: [
-      {
-        $and: [
-          {
-            $or: [
-              {
-                first_name: { starts_with: "di" },
-                last_name: { ends_with: "go" },
-                age: { $or: { gte: 18, lte: 60 } },
-              },
-              {
-                $or: [{ profile: { eq: "admin" } }, { profile: { eq: "manager" } }],
-                is_public_access: { is_true: true },
-              },
-              {
-                profile: { eq: "not required" },
-              },
-            ],
-          },
-          {
-            status: { eq: "online" },
-          },
-        ],
-        $or: [
-          {
-            priority: { eq: 1, $or: { lte: 1, gte: 3 } },
-          },
-          {
-            priority: { eq: 2 },
-          },
-        ],
-      },
-      {
-        first_name: {
-          not: {
-         eq: "teste",
-            $or: {
-              starts_with: "p",
-              ends_with: "g",
+  filter: [
+    {
+      $and: [
+        {
+          $or: [
+            {
+              first_name: { starts_with: "di" },
+              last_name: { ends_with: "go" },
+              age: { $or: { gte: 18, lte: 60 } },
+            },
+            {
+              $or: [{ profile: { eq: "admin" } }, { profile: { eq: "manager" } }],
+              is_public_access: { is_true: true },
+            },
+            {
+              profile: { eq: "not required" },
+            },
+          ],
+        },
+        {
+          status: { eq: "online" },
+        },
+      ],
+      $or: [
+        {
+          priority: { eq: 1, $or: { lte: 1, gte: 3 } },
+        },
+        {
+          priority: { eq: 2 },
+        },
+      ],
+    },
+    {
+      first_name: {
+        not: {
+          eq: "teste",
+          $or: {
+            starts_with: "p",
+            ends_with: "g",
           },
           $or: {
             starts_with: "di",
@@ -719,9 +719,9 @@ await filter(pessoaRepository, {
           },
         },
       },
-    ],
-  }
-)
+    },
+  ],
+});
 ```
 
 That will be mapped to the following SQL condition:

@@ -1,17 +1,14 @@
 import { Brackets, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
-import { PessoaTeste } from "../../test/entities/PessoaTeste";
 import { FilterOperator } from "../enums";
-import { FieldFilter, FilterQuery, FilterQueryFilter } from "../types";
+import { FilterQuery, FilterQueryFilter } from "../types";
 import { Builder } from "./Builder";
 
 export class WhereBuilder<T> extends Builder<T> {
-  build({ filter: filters }: FilterQuery<T>) {
+  build({ filters: filters }: FilterQuery<T>) {
     this.buildConditionsFromFilter(filters, this.queryBuilder);
   }
 
   private buildConditionsFromFilter(
-    // field: string,
-    // fieldOperators: any,
     filters: FilterQueryFilter<any>,
     queryBuilder: WhereExpressionBuilder,
     { filterWith }: { filterWith?: string } = { filterWith: null }
@@ -19,10 +16,10 @@ export class WhereBuilder<T> extends Builder<T> {
     queryBuilder.andWhere(
       new Brackets((qb) => {
         for (const filter of filters) {
-          qb[!filterWith || filterWith === "$and" ? "andWhere" : "orWhere"](
+          qb[!filterWith || filterWith === "AND" ? "andWhere" : "orWhere"](
             new Brackets((qb2) => {
               for (const filterKey in filter) {
-                if (["$and", "$or"].includes(filterKey) && Array.isArray(filter[filterKey])) {
+                if (["AND", "OR"].includes(filterKey) && Array.isArray(filter[filterKey])) {
                   this.buildConditionsFromFilter(filter[filterKey], qb2, { filterWith: filterKey });
                 } else {
                   const fieldName = filterKey;
@@ -32,7 +29,11 @@ export class WhereBuilder<T> extends Builder<T> {
                     continue;
                   }
 
-                  this.buildFieldConditionsFromFilter(qb2, fieldName, fieldOperators);
+                  qb2.andWhere(
+                    new Brackets((qb3) => {
+                      this.buildFieldConditionsFromFilter(qb3, fieldName, fieldOperators);
+                    })
+                  );
                 }
               }
             })
@@ -47,27 +48,45 @@ export class WhereBuilder<T> extends Builder<T> {
     fieldName: string,
     // fieldFilters: FieldFilter<any>,
     fieldFilters: any,
-    { negate, filterWith }: { negate?: boolean; filterWith?: "$or" | "$and" } = { negate: false, filterWith: null }
+    { negate, filterWith }: { negate?: boolean; filterWith?: "OR" | "AND" } = { negate: false, filterWith: null }
   ) {
+    if (this.configuration.customFieldFilter?.[fieldName]) {
+      if (filterWith === "OR") {
+        qb.orWhere(
+          new Brackets((qbInner) => {
+            this.configuration.customFieldFilter[fieldName](qbInner, fieldFilters, this.queryBuilder.expressionMap.mainAlias.name);
+          })
+        );
+      } else {
+        qb.andWhere(
+          new Brackets((qbInner) => {
+            this.configuration.customFieldFilter[fieldName](qbInner, fieldFilters, this.queryBuilder.expressionMap.mainAlias.name);
+          })
+        );
+      }
+
+      return;
+    }
+
+    // console.log({ fieldFilters });
+
     for (const fieldFilter in fieldFilters) {
-      if (fieldFilter === "$or") {
+      if (fieldFilter === "OR") {
         qb.andWhere(
           new Brackets((qb2) => {
             this.buildFieldConditionsFromFilter(qb2, fieldName, fieldFilters[fieldFilter], { negate, filterWith: fieldFilter });
           })
         );
-      } else if (fieldFilter === "not") {
+      } else if (fieldFilter === "NOT") {
         qb.andWhere(
           new Brackets((qb2) => {
             this.buildFieldConditionsFromFilter(qb2, fieldName, fieldFilters[fieldFilter], { negate: true });
           })
         );
       } else {
-        if (filterWith === "$or") {
-          qb.orWhere(this.buildWhereCondition(fieldName, { negate, operator: FilterOperator[fieldFilter.toUpperCase()] }, fieldFilters[fieldFilter]));
-        } else {
-          qb.andWhere(this.buildWhereCondition(fieldName, { negate, operator: FilterOperator[fieldFilter.toUpperCase()] }, fieldFilters[fieldFilter]));
-        }
+        qb[filterWith === "OR" ? "orWhere" : "andWhere"](
+          this.buildWhereCondition(fieldName, { negate, operator: FilterOperator[fieldFilter.toUpperCase()] }, fieldFilters[fieldFilter])
+        );
       }
     }
   }

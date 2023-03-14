@@ -15,17 +15,17 @@ export async function filter<T>(
   configuration.paginate = !(configuration.paginate === false);
   configuration.ignoreException = !(configuration.ignoreException === false);
 
-  if (repositoryOrQueryBuilder instanceof Repository) {
-    repositoryOrQueryBuilder = repositoryOrQueryBuilder.createQueryBuilder("base");
+  if (repositoryOrQueryBuilder instanceof Repository || repositoryOrQueryBuilder.constructor.name == "Repository") {
+    repositoryOrQueryBuilder = repositoryOrQueryBuilder.createQueryBuilder();
   }
 
-  query.filter = query.filter ?? [];
+  query.filters = query.filters ?? [];
   query.page = query.page ?? undefined;
   query.limit = query.limit ?? undefined;
   query.relations = query.relations ?? [];
   query.order = query.order ?? [];
   query.select = query.select ?? [];
-  query.s = query.s ?? undefined;
+  query.search = query.search ?? undefined;
 
   try {
     const qb = new QueryBuilder(repositoryOrQueryBuilder, configuration);
@@ -47,25 +47,19 @@ export async function filter<T>(
 
     console.error(err);
 
-    return configuration.paginate
-      ? {
-          data: [],
-          meta: {
-            error: err.message,
-            pagination: {
+    return {
+      data: [],
+      meta: {
+        error: err.message,
+        pagination: configuration.paginate
+          ? {
               page: 0,
               perPage: 0,
               total: 0,
               pages: 0,
-            },
-          },
-        }
-      : {
-          data: [],
-          meta: {
-            error: err.message,
-            pagination: null,
-          },
-        };
+            }
+          : null,
+      },
+    };
   }
 }

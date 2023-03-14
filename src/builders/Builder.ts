@@ -64,6 +64,8 @@ export class Builder<T> implements IBuilder<T> {
   }
 
   public updateQueryBuilderMapper() {
+    // console.log(this.queryBuilder);
+
     this.queryBuilder.expressionMap.joinAttributes.map((j) => {
       this.queryBuilderMapper.relationsAliasMapping[j.relation.propertyName] = j.alias.name;
       this.queryBuilderMapper.relationsAliasInverseMapping[j.alias.name] = j.relation.propertyName;
@@ -93,8 +95,7 @@ export class Builder<T> implements IBuilder<T> {
       case FilterOperator.CONTAINS:
       case FilterOperator.STARTS_WITH:
       case FilterOperator.ENDS_WITH:
-      case FilterOperator.EQ:
-        // columnName = `CAST(${columnName} AS TEXT)`;
+      case FilterOperator.EQUALS:
         break;
     }
 

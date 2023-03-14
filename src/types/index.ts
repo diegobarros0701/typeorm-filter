@@ -1,1 +1,1 @@
-export * from './FilterQuery';
+export * from "./FilterQuery";

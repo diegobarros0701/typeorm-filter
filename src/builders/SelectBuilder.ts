@@ -16,7 +16,8 @@ export class SelectBuilder<T> extends Builder<T> {
         return fieldName;
       }
 
-      return fieldName.split(".").length > 1 ? fieldName : `${this.queryBuilder.alias}.${fieldName}`;
+      return fieldName;
+      // return fieldName.split(".").length > 1 ? fieldName : `"${this.queryBuilder.expressionMap.mainAlias.name}"."${fieldName}"`;
     });
 
     this.queryBuilder.addSelect(fieldsToSelect);

@@ -1,4 +1,5 @@
 import { FilterOperator } from "../enums/FilterOperator";
+import { FilterConfiguration } from "./FilterConfiguration";
 
 export type FieldFilter<T> =
   | {
@@ -6,23 +7,26 @@ export type FieldFilter<T> =
         | {
             [key in FilterOperator]?: any;
           }
-        | { $or: { [key in FilterOperator]?: any } | { not: { [key in Exclude<FilterOperator, "not" | "$or">]?: any } } };
+        | { OR: { [key in FilterOperator]?: any } | { not: { [key in Exclude<FilterOperator, "not" | "OR">]?: any } } };
     }
   | {
       [k in keyof T]?: {
-        not: { [key in Exclude<FilterOperator, "not">]?: any } | { $or: { [key in Exclude<FilterOperator, "not">]?: any } };
+        not: { [key in Exclude<FilterOperator, "not">]?: any } | { OR: { [key in Exclude<FilterOperator, "not">]?: any } };
       };
-    };
+    }
+  | { [k: string]: any };
 
-export type FilterQueryFilter<T> = Array<{ $and: FilterQueryFilter<T> } | { $or: FilterQueryFilter<T> } | FieldFilter<T>>;
+export type FilterQueryFilter<T> = Array<{ AND: FilterQueryFilter<T> } | { OR: FilterQueryFilter<T> } | FieldFilter<T>>;
 
 export type FilterQuery<T> = {
   page?: number;
   limit?: number;
-  filter?: FilterQueryFilter<T>;
+  filters?: FilterQueryFilter<T>;
   relations?: string[];
   order?: string[];
   select?: string[];
-  s?: string;
-  searchColumns?: string[];
+  search?: {
+    term: string;
+    fields?: string[];
+  };
 };

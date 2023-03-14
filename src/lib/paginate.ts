@@ -1,5 +1,5 @@
-import { SelectQueryBuilder } from 'typeorm';
-import { PaginationConfiguration } from '../types/PaginationConfiguration';
+import { SelectQueryBuilder } from "typeorm";
+import { PaginationConfiguration } from "../types/PaginationConfiguration";
 
 export async function paginate<T>(queryBuilder: SelectQueryBuilder<T>, config?: PaginationConfiguration) {
   const page = config?.page || 1;
@@ -36,8 +36,8 @@ export async function paginate<T>(queryBuilder: SelectQueryBuilder<T>, config?: 
         page: Number(page),
         perPage: Number(limit),
         total: result[1],
-        pages: Math.ceil(result[1] / limit)
-      }
-    }
+        pages: Math.ceil(result[1] / limit),
+      },
+    },
   };
 }

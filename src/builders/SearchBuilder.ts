@@ -4,18 +4,18 @@ import { FilterQuery } from "../types";
 import { Builder } from "./Builder";
 
 export class SearchBuilder<T> extends Builder<T> {
-  build({ s, searchColumns }: FilterQuery<T>) {
+  build({ search }: FilterQuery<T>) {
     const { searchableColumns } = this.configuration;
 
-    if (s && searchColumns?.length) {
+    if (search?.fields?.length) {
       this.queryBuilder.andWhere(
         new Brackets((qb) => {
-          for (const searchColumn of searchColumns) {
-            if (searchableColumns?.length && !searchableColumns.includes(searchColumn)) {
+          for (const field of search.fields) {
+            if (searchableColumns && !searchableColumns.includes(field)) {
               continue;
             }
 
-            qb.orWhere(this.buildWhereCondition(searchColumn, { operator: FilterOperator.CONTAINS, negate: false }, `%${s}%`));
+            qb.orWhere(this.buildWhereCondition(field, { operator: FilterOperator.CONTAINS, negate: false }, search.term));
           }
         })
       );

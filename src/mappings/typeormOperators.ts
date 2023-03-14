@@ -7,11 +7,10 @@ export const typeormMappingOperators = {
   [FilterOperator.STARTS_WITH]: ILike,
   [FilterOperator.ENDS_WITH]: ILike,
   [FilterOperator.IN]: In,
-  [FilterOperator.EQ]: Equal,
+  [FilterOperator.EQUALS]: Equal,
   [FilterOperator.GT]: MoreThan,
   [FilterOperator.GTE]: MoreThanOrEqual,
   [FilterOperator.LT]: LessThan,
   [FilterOperator.LTE]: LessThanOrEqual,
   [FilterOperator.IS_NULL]: IsNull,
-  [FilterOperator.IS_TRUE]: Equal, // TODO: AJUSTAS
 };
