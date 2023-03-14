@@ -64,8 +64,6 @@ export class Builder<T> implements IBuilder<T> {
   }
 
   public updateQueryBuilderMapper() {
-    // console.log(this.queryBuilder);
-
     this.queryBuilder.expressionMap.joinAttributes.map((j) => {
       this.queryBuilderMapper.relationsAliasMapping[j.relation.propertyName] = j.alias.name;
       this.queryBuilderMapper.relationsAliasInverseMapping[j.alias.name] = j.relation.propertyName;

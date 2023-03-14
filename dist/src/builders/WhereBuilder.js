@@ -35,7 +35,6 @@ class WhereBuilder extends Builder_1.Builder {
     // fieldFilters: FieldFilter<any>,
     fieldFilters, { negate, filterWith } = { negate: false, filterWith: null }) {
         var _a;
-        console.log({ fieldFilters });
         if ((_a = this.configuration.customFilter) === null || _a === void 0 ? void 0 : _a[fieldName]) {
             if (filterWith === "OR") {
                 qb.orWhere(new typeorm_1.Brackets((qbInner) => {

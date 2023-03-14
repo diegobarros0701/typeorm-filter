@@ -41,7 +41,6 @@ class Builder {
         }
     }
     updateQueryBuilderMapper() {
-        // console.log(this.queryBuilder);
         this.queryBuilder.expressionMap.joinAttributes.map((j) => {
             this.queryBuilderMapper.relationsAliasMapping[j.relation.propertyName] = j.alias.name;
             this.queryBuilderMapper.relationsAliasInverseMapping[j.alias.name] = j.relation.propertyName;
@@ -68,7 +67,6 @@ class Builder {
             case enums_1.FilterOperator.EQUALS:
                 break;
         }
-        console.log({ columnName, operator, parameters });
         const typeOrmFindOperator = typeormOperators_1.typeormMappingOperators[operator];
         const wherePredicate = this.queryBuilder["getWherePredicateCondition"](`CAST(${columnName} AS TEXT)`, negate ? (0, typeorm_1.Not)(typeOrmFindOperator(...parameters)) : typeOrmFindOperator(...parameters));
         const whereCondition = this.queryBuilder["createWhereConditionExpression"](wherePredicate);
