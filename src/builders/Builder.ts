@@ -97,6 +97,10 @@ export class Builder<T> implements IBuilder<T> {
         break;
     }
 
+    if (!columnName.includes(".")) {
+      columnName = `${this.queryBuilder.expressionMap.mainAlias.name}.${columnName}`;
+    }
+
     const typeOrmFindOperator = typeormMappingOperators[operator];
     const wherePredicate = this.queryBuilder["getWherePredicateCondition"](
       `CAST(${columnName} AS TEXT)`,
