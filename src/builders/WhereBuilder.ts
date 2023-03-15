@@ -90,6 +90,8 @@ export class WhereBuilder<T> extends Builder<T> {
   }
 
   private canFilterField(fieldName: string) {
-    return !this.configuration?.filterableColumns?.length || this.configuration.filterableColumns.includes(fieldName);
+    const fullFieldName = !fieldName.includes(".") ? `${this.queryBuilder.expressionMap.mainAlias.name}.${fieldName}` : fieldName;
+
+    return !this.configuration?.filterableColumns?.length || this.configuration.filterableColumns.includes(fullFieldName);
   }
 }

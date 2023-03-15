@@ -11,7 +11,9 @@ export class SearchBuilder<T> extends Builder<T> {
       this.queryBuilder.andWhere(
         new Brackets((qb) => {
           for (const field of search.fields) {
-            if (searchableColumns && !searchableColumns.includes(field)) {
+            const fullFieldName = !field.includes(".") ? `${this.queryBuilder.expressionMap.mainAlias.name}.${field}` : field;
+
+            if (searchableColumns && !searchableColumns.includes(fullFieldName)) {
               continue;
             }
 

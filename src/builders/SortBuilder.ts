@@ -29,6 +29,8 @@ export class SortBuilder<T> extends Builder<T> {
   }
 
   private canSortField(fieldName: string) {
-    return !this.configuration?.sortableColumns || this.configuration.sortableColumns.includes(fieldName);
+    const fullFieldName = !fieldName.includes(".") ? `${this.queryBuilder.expressionMap.mainAlias.name}.${fieldName}` : fieldName;
+
+    return !this.configuration?.sortableColumns || this.configuration.sortableColumns.includes(fullFieldName);
   }
 }
