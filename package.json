@@ -1,6 +1,6 @@
 {
   "name": "typeorm-filter",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "typeorm-filter provides a more complex API for filter",
   "main": "dist/index.js",
   "types": "index.ts",
