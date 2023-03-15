@@ -66,7 +66,8 @@ class WhereBuilder extends Builder_1.Builder {
     }
     canFilterField(fieldName) {
         var _a, _b;
-        return !((_b = (_a = this.configuration) === null || _a === void 0 ? void 0 : _a.filterableColumns) === null || _b === void 0 ? void 0 : _b.length) || this.configuration.filterableColumns.includes(fieldName);
+        const fullFieldName = !fieldName.includes(".") ? `${this.queryBuilder.expressionMap.mainAlias.name}.${fieldName}` : fieldName;
+        return !((_b = (_a = this.configuration) === null || _a === void 0 ? void 0 : _a.filterableColumns) === null || _b === void 0 ? void 0 : _b.length) || this.configuration.filterableColumns.includes(fullFieldName);
     }
 }
 exports.WhereBuilder = WhereBuilder;

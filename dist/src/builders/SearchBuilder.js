@@ -11,7 +11,8 @@ class SearchBuilder extends Builder_1.Builder {
         if ((_a = search === null || search === void 0 ? void 0 : search.fields) === null || _a === void 0 ? void 0 : _a.length) {
             this.queryBuilder.andWhere(new typeorm_1.Brackets((qb) => {
                 for (const field of search.fields) {
-                    if (searchableColumns && !searchableColumns.includes(field)) {
+                    const fullFieldName = !field.includes(".") ? `${this.queryBuilder.expressionMap.mainAlias.name}.${field}` : field;
+                    if (searchableColumns && !searchableColumns.includes(fullFieldName)) {
                         continue;
                     }
                     qb.orWhere(this.buildWhereCondition(field, { operator: enums_1.FilterOperator.CONTAINS, negate: false }, search.term));

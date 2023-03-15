@@ -67,6 +67,9 @@ class Builder {
             case enums_1.FilterOperator.EQUALS:
                 break;
         }
+        if (!columnName.includes(".")) {
+            columnName = `${this.queryBuilder.expressionMap.mainAlias.name}.${columnName}`;
+        }
         const typeOrmFindOperator = typeormOperators_1.typeormMappingOperators[operator];
         const wherePredicate = this.queryBuilder["getWherePredicateCondition"](`CAST(${columnName} AS TEXT)`, negate ? (0, typeorm_1.Not)(typeOrmFindOperator(...parameters)) : typeOrmFindOperator(...parameters));
         const whereCondition = this.queryBuilder["createWhereConditionExpression"](wherePredicate);

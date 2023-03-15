@@ -26,7 +26,8 @@ class SortBuilder extends Builder_1.Builder {
     }
     canSortField(fieldName) {
         var _a;
-        return !((_a = this.configuration) === null || _a === void 0 ? void 0 : _a.sortableColumns) || this.configuration.sortableColumns.includes(fieldName);
+        const fullFieldName = !fieldName.includes(".") ? `${this.queryBuilder.expressionMap.mainAlias.name}.${fieldName}` : fieldName;
+        return !((_a = this.configuration) === null || _a === void 0 ? void 0 : _a.sortableColumns) || this.configuration.sortableColumns.includes(fullFieldName);
     }
 }
 exports.SortBuilder = SortBuilder;
